@@ -1,14 +1,10 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
 
-export const user = sqliteTable('user', {
-    id: text('id').primaryKey(),
-    age: integer('age'),
-    username: text('username').notNull().unique(),
-    passwordHash: text('password_hash').notNull()
+export const products = sqliteTable("products", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    name: text("name").notNull(),
+    description: text("description"),
+    price: real("price").notNull(),
+    imageUrl: text("image_url"),
 });
 
-export const session = sqliteTable("session", {
-    id: text('id').primaryKey(),
-    userId: text('user_id').notNull().references(() => user.id),
-    expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull()
-});
