@@ -3,7 +3,6 @@ if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
 
 export default defineConfig({
   schema: './src/lib/server/db/schema.js',
-  driver:  'better-sqlite3',
 
   dbCredentials: {
     url: process.env.DATABASE_URL
@@ -11,4 +10,5 @@ export default defineConfig({
 
   verbose: true,
   strict: true,
+  dialect: 'sqlite'
 });
