@@ -3,41 +3,36 @@ import { db } from "$lib/server/db";
 import { orders, orderItems, cart, products } from "$lib/server/db/schema";
 import { eq } from "drizzle-orm";
 
+const TEST_MODE = true;
+
+async function getUserId(locals) {
+    if (TEST_MODE) return 1;
+    const session = await locals.auth.validate();
+    return session?.user.userId || null;
+}
+
 export async function POST({ locals }) {
-    const userId = locals.user?.id;
+    const userId = await getUserId(locals);
     if (!userId) return json({ error: "Nem hitelesített." }, { status: 401 });
 
+     // Lekérjük a kosár tartalmát
     const cartItems = await db.select().from(cart).where(eq(cart.userId, userId));
     if (cartItems.length === 0) return json({ error: "A kosár üres." }, { status: 400 });
 
-    let totalAmount = 0;
-    const orderData = cartItems.map(item => {
-        totalAmount += item.quantity * item.price;
-        return {
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price
-        };
-    });
+    // Rendelés létrehozása
+    const orderId = await db.insert(orders).values({ userId }).returning({ id: orders.id });
 
-    // Létrehozzuk a rendelést
-    const [newOrder] = await db.insert(orders).values({
-        userId,
-        totalAmount
-    }).returning();
+    // Rendelés tételeinek mentése
+    const orderItemsData = cartItems.map(item => ({
+        orderId: orderId[0].id,
+        productId: item.productId,
+        quantity: item.quantity
+    }));
 
-    // Rendelés tételek beszúrása
-    await db.insert(orderItems).values(
-        orderData.map(item => ({
-            orderId: newOrder.id,
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price
-        }))
-    );
+    await db.insert(orderItems).values(orderItemsData);
 
     // Kosár ürítése
     await db.delete(cart).where(eq(cart.userId, userId));
 
-    return json({ message: "Rendelés sikeresen leadva.", orderId: newOrder.id });
+    return json({ message: "Rendelés sikeresen leadva.", orderId: orderId[0].id });
 }

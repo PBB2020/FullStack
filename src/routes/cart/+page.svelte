@@ -4,6 +4,7 @@
   
     let cart = [];
     let error = "";
+    let message = "";
   
     async function fetchCart() {
       try {
@@ -24,32 +25,38 @@
         });
   
         if (!res.ok) throw new Error("Hiba a termék eltávolításakor");
-        await fetchCart(); // Frissítés
-      } catch (err) {
-        error = err.message;
-      }
+        cart = cart.filter(item => item.productId !== productId); // Frontenden is frissítünk
+    } catch (err) {
+      error = err.message;
     }
+  }
   
     async function placeOrder() {
       try {
         const res = await fetch("/api/orders", { method: "POST" });
         if (!res.ok) throw new Error("Hiba a rendelés leadásakor");
   
-        alert("Rendelés sikeresen leadva!");
-        goto("/"); // Visszairányítás a főoldalra
+        message = "Rendelés sikeresen leadva!";
+        cart = []; // Frontenden ürítjük a kosarat
+        setTimeout(() => goto("/"), 2000); // 2 mp múlva vissza a főoldalra
       } catch (err) {
         error = err.message;
       }
     }
-  
+
     onMount(fetchCart);
   </script>
   
   <h1>Kosár</h1>
+
   {#if error}
     <p style="color: red;">{error}</p>
   {/if}
   
+  {#if message}
+  <p style="color: green;">{message}</p>
+  {/if} 
+
   {#if cart.length === 0}
     <p>A kosarad üres.</p>
   {:else}
@@ -61,7 +68,9 @@
         <button on:click={() => removeFromCart(item.productId)}>Törlés</button>
       </div>
     {/each}
-    <button on:click={placeOrder} class="order-button">Rendelés leadása</button>
+    <button on:click={placeOrder} class="order-button" disabled={cart.length === 0}>
+      Rendelés leadása
+    </button>
   {/if}
   
   <style>
@@ -84,5 +93,9 @@
       color: white;
       border: none;
       cursor: pointer;
+    }
+    .order-button:disabled {
+    background: gray;
+    cursor: not-allowed;
     }
   </style>
