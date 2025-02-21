@@ -2,9 +2,9 @@ import { db } from './index.js';
 import { products } from './schema.js';
 
 const productData = [
-{ name: "Termék 1", description: "Ez egy csodálatos termék.", price: 1500, imageUrl: "/public/images/product1.jpg"},
-{ name: "Termék 2", description: "Ez egy varázslatos termék.", price: 2000, imageUrl: "/public/images/product2.jpg"},
-{ name: "Termék 3", description: "A legmágikusabb termék.", price: 2500, imageUrl: "/public/images/product3.jpg"},
+{ name: "Termék 1", description: "Ez egy csodálatos termék.", price: 1500, imageUrl: "/images/product1.jpg"},
+{ name: "Termék 2", description: "Ez egy varázslatos termék.", price: 2000, imageUrl: "/images/product2.jpg"},
+{ name: "Termék 3", description: "A legmágikusabb termék.", price: 2500, imageUrl: "/images/product3.jpg"},
 ];
 
 async function seedDatabase() {

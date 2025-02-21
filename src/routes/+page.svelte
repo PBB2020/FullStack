@@ -14,7 +14,9 @@
       }
     }
   
-    onMount(fetchProducts);
+    onMount(async () => {
+        await fetchProducts();
+    });
   </script>
   
   <h1>Termékek</h1>
